@@ -15,6 +15,9 @@ export class Task {
   @Prop()
   description: string;
 
+  @Prop({ type: Types.ObjectId, ref: User.name })
+  assignee: Types.ObjectId;
+
   @Prop({
     type: String,
     enum: ['todo', 'done', 'in_progress'],

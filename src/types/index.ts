@@ -14,6 +14,7 @@ export type User = {
 export type Task = {
   title?: string;
   description?: string;
+  assignee?: string;
   status?: 'todo' | 'done' | 'in_progress';
   due_date?: Date;
 }

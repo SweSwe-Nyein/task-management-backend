@@ -12,6 +12,9 @@ export class TaskDto {
   description: string;
 
   @IsNotEmpty()
+  assignee: Types.ObjectId;
+
+  @IsNotEmpty()
   status: 'todo' | 'done' | 'in_progress';
 
   @IsNotEmpty()

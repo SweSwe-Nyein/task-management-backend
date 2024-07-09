@@ -13,20 +13,19 @@ export class TaskRepository {
     return createdTask.save();
   }
 
-  async findAll(query: { status?: string, skip: number, limit: number, user_id: Types.ObjectId }): Promise<Task[]> {
+  async findAll(query: { status?: string, skip: number, limit: number }): Promise<Task[]> {
     const filters: mongoose.FilterQuery<TasksDocument> = {};
     
     if (query.status) {
       filters.status = query.status;
-      filters.user_id = query.user_id;
     }
 
-    return await this.taskModel.find(filters).skip(query.skip).limit(query.limit).sort({ createdAt: -1 }).exec();
+    return await this.taskModel.find(filters).skip(query.skip).limit(query.limit).sort({ createdAt: -1 }).populate('assignee', 'full_name').exec();
   }
 
-  async countAll(query: { status?: string, user_id: Types.ObjectId }): Promise<number> {
+  async countAll(query: { status?: string }): Promise<number> {
     const filters: mongoose.FilterQuery<TasksDocument> = {};
-    filters.user_id = query.user_id;
+
     if (query.status) {
       filters.status = query.status;
     }
@@ -34,27 +33,26 @@ export class TaskRepository {
     return await this.taskModel.countDocuments(filters).exec();
   }
 
-  async updateOne(user_id: Types.ObjectId, taskId: string, data: Partial<TaskDto>) {
-    this.taskModel.updateOne({ _id: taskId, user_id }, { $set: data }).exec();
+  async updateOne(taskId: string, data: Partial<TaskDto>) {
+    this.taskModel.updateOne({ _id: taskId }, { $set: data }).exec();
 
   }
 
-  async findById(user_id: Types.ObjectId, taskId: string) {
-    return this.taskModel.findOne({ _id: taskId, user_id }).exec();
+  async findById(taskId: string) {
+    return this.taskModel.findOne({ _id: taskId }).populate('assignee', 'full_name').exec();
   }
 
-  async delete(user_id: Types.ObjectId, taskId: string) {
-    return await this.taskModel.deleteOne({ _id: taskId, user_id});
+  async delete(taskId: string) {
+    return await this.taskModel.deleteOne({ _id: taskId});
   }
 
-  async getTaskCounts(user_id: Types.ObjectId, query: { q: string }): Promise<{ todo: number, in_progress: number, done: number }> {
-    let filters: mongoose.FilterQuery<TasksDocument> = { user_id: user_id, $or: [
+  async getTaskCounts(query: { q: string }): Promise<{ todo: number, in_progress: number, done: number }> {
+    let filters: mongoose.FilterQuery<TasksDocument> = { $or: [
       { title: new RegExp(query.q, 'i') },
       { description: new RegExp(query.q, 'i') },
     ], };
     if (!query.q) {
       filters = {};
-      filters.user_id = user_id;
     }
   
     // Count tasks based on their status

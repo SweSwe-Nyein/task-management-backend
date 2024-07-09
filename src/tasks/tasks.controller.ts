@@ -19,41 +19,40 @@ export class TaskController {
 
   @Post()
   async create(@GetCurrentUserId() user_id: string, @Body() createTaskDto: TaskDto) {
-    return await this.tasksService.create({ ...createTaskDto, user_id: new Types.ObjectId(user_id) });
+    return await this.tasksService.create({ ...createTaskDto, assignee: new Types.ObjectId(createTaskDto.assignee), user_id: new Types.ObjectId(user_id) });
   }
 
   @Get()
   async findAll(
-    @GetCurrentUserId() user_id: string,
     @Query('status') status?: string,
     @Query('page') page = 1,
     @Query('limit') limit = 10,
   ) {
-    return await this.tasksService.findAll({ status, page, limit, user_id: new Types.ObjectId(user_id)});
+    return await this.tasksService.findAll({ status, page, limit});
   }
 
   @Get('counts')
-  async getTaskCounts(@GetCurrentUserId() user_id: string, @Query() q: { q: string }) {
-    return await this.tasksService.getTaskCounts(new Types.ObjectId(user_id), q);
+  async getTaskCounts(@Query() q: { q: string }) {
+    return await this.tasksService.getTaskCounts(q);
   }
 
   @Get(':id')
-  async findOne(@GetCurrentUserId() user_id: string, @Param('id') id: string) {
-    return await this.tasksService.findById(new Types.ObjectId(user_id), id);
+  async findOne(@Param('id') id: string) {
+    return await this.tasksService.findById(id);
   }
 
   @Patch(':id')
-  async update(@GetCurrentUserId() user_id: string, @Param('id') id: string, @Body() updateUserDto: TaskDto) {
-    return await this.tasksService.updateOne(new Types.ObjectId(user_id), id, updateUserDto);
+  async update(@Param('id') id: string, @Body() updateUserDto: TaskDto) {
+    return await this.tasksService.updateOne(id, {...updateUserDto, assignee: new Types.ObjectId(updateUserDto.assignee)});
   }
 
   @Patch(':id/mark-as-done')
-  async markAsDone(@GetCurrentUserId() user_id: string, @Param('id') id: string) {
-    return await this.tasksService.markAsDone(new Types.ObjectId(user_id), id);
+  async markAsDone(@Param('id') id: string) {
+    return await this.tasksService.markAsDone(id);
   }
 
   @Delete(':id')
-  async remove(@GetCurrentUserId() user_id: string, @Param('id') id: string) {
-    return await this.tasksService.delete(new Types.ObjectId(user_id), id);
+  async remove(@Param('id') id: string) {
+    return await this.tasksService.delete(id);
   }
 }

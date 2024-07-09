@@ -14,34 +14,34 @@ export class TasksService {
     return createdTask;
   }
 
-  async findAll(query: { status?: string, page: number, limit: number, user_id: Types.ObjectId }): Promise<{ tasks: Task[], total: number }> {
-    const { status, page, limit, user_id } = query;
+  async findAll(query: { status?: string, page: number, limit: number }): Promise<{ tasks: Task[], total: number }> {
+    const { status, page, limit } = query;
     const skip = (page - 1) * limit;
 
-    const tasks = await this.taskRepository.findAll({ status, skip, limit, user_id });
-    const total = await this.taskRepository.countAll({ status, user_id });
+    const tasks = await this.taskRepository.findAll({ status, skip, limit });
+    const total = await this.taskRepository.countAll({ status });
 
     return { tasks, total };
   }
 
-  async updateOne(user_id: Types.ObjectId, taskId: string, data: TaskDto) {
-    await this.taskRepository.updateOne(user_id, taskId, data);
+  async updateOne(taskId: string, data: TaskDto) {
+    await this.taskRepository.updateOne(taskId, data);
   }
 
-  async markAsDone(user_id: Types.ObjectId, taskId: string) {
-    return await this.taskRepository.updateOne(user_id, taskId, { status: 'done' });
+  async markAsDone(taskId: string) {
+    return await this.taskRepository.updateOne(taskId, { status: 'done' });
   }
 
-  async findById(user_id: Types.ObjectId, taskId: string) {
-    return await this.taskRepository.findById(user_id, taskId);
+  async findById(taskId: string) {
+    return await this.taskRepository.findById(taskId);
   }
 
-  async delete(user_id: Types.ObjectId, id: string) {
-    return await this.taskRepository.delete(user_id, id);
+  async delete(id: string) {
+    return await this.taskRepository.delete(id);
   }
 
-  async getTaskCounts(user_id: Types.ObjectId, q: { q: string }): Promise<{ todo: number, in_progress: number, done: number }> {
-    return await this.taskRepository.getTaskCounts(user_id, q);
+  async getTaskCounts(q: { q: string }): Promise<{ todo: number, in_progress: number, done: number }> {
+    return await this.taskRepository.getTaskCounts(q);
   }
 
   async hashPassword(data: string) {
